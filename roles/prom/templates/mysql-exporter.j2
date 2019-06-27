@@ -1,0 +1,18 @@
+[Unit]
+Description=mysqld_exporter - Prometheus exporter for MySQL metrics.
+After=network.target
+
+[Service]
+Environment=DATA_SOURCE_NAME={{ prometheus_mysqld_exporter_env }}
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/mysqld_exporter
+Restart=Always
+StartLimitBurst=0
+RestartSec=600
+
+[Install]
+WantedBy=multi-user.target
+After=network-online.target
+Wants=network-online.target

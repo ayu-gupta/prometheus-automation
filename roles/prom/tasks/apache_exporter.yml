@@ -1,0 +1,36 @@
+---
+- name: Adding User for Apache Exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/Lusitaniae/apache_exporter/releases/download"
+
+- name: Downloading and unarchiving the Apache Exporter
+  unarchive:
+    src: "{{ base_url }}/v{{ apache_exporter }}/apache_exporter-{{ apache_exporter }}.linux-amd64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+    mode: 0755
+
+- name: Copy apache-exporter binary to appropriate path
+  copy:
+    src: /tmp/apache_exporter-{{ apache_exporter }}.linux-amd64/apache_exporter
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0555
+
+- name: Creating Service for Apache Exporter
+  template:
+   src: apache-exporter.j2
+   dest: /etc/systemd/system/apache-exporter.service
+   mode: 0755
+
+- name: Enabling and start Apache Exporter service
+  systemd:
+    name: apache-exporter
+    state: started
+    enabled: yes
+    daemon_reload: yes

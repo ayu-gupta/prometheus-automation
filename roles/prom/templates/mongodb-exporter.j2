@@ -1,0 +1,18 @@
+[Unit]
+Description=MongoDB Exporter Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/mongodb_exporter
+Restart=Always
+StartLimitBurst=0
+RestartSec=600
+
+[Install]
+WantedBy=multi-user.target
+After=network-online.target
+Wants=network-online.target

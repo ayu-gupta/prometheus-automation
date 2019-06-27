@@ -1,0 +1,19 @@
+[Unit]
+Description=Kafka Exporter Service
+After=network-online.target
+Wants=network-online.target
+
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/kafka_exporter --kafka.server=http://{{ kafka_ip }}:{{ kafka_port }}
+Restart=Always
+StartLimitBurst=0
+RestartSec=600
+
+[Install]
+WantedBy=multi-user.target
+After=network-online.target
+Wants=network-online.target

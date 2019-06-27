@@ -1,0 +1,31 @@
+---
+
+- name: restart node_exporter
+  systemd:
+    name: node_exporter.service
+    state: restarted
+  when: node_exporter_service_state != 'stopped'
+
+- name: restart apache_exporter
+  systemd:
+    name: apache-exporter.service
+    state: restarted
+  when: apache-exporter_service_state != 'stopped'
+
+- name: restart mongodb-exporter
+  systemd:
+    name: mongodb-exporter.service
+    state: restarted
+  when: mongodb-exporter_service_state != 'stopped'
+
+- name: restart mysql_exporter
+  systemd:
+    name: mysql-exporter.service
+    state: restarted
+  when: mysql-exporter_service_state != 'stopped'
+
+- name: restart nginx-vts-exporter
+  systemd:
+    name: nginx-vts-exporter.service
+    state: restarted
+  when: nginx-vts-exporter_service_state != 'stopped'

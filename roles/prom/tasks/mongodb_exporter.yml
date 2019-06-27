@@ -1,0 +1,37 @@
+---
+
+- name: Adding user for MongoDB Exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/dcu/mongodb_exporter/releases/download"
+
+- name: Downloading and unarchiving the MongoDB Exporter
+  get_url:
+    url: "{{ base_url }}/v{{ mongodb_exporter }}/mongodb_exporter-linux-amd64"
+    dest: /tmp
+    remote_src: yes
+    mode: 0755
+
+- name: Copy mongodb-exporter to appropriate path
+  copy:
+    src: "/tmp/mongodb_exporter-linux-amd64"
+    dest: /usr/local/bin/mongodb_exporter
+    remote_src: yes
+    mode: 0555
+
+- name: Creating Service for MongoDB Exporter
+  template:
+    src: mongodb-exporter.j2
+    dest: /etc/systemd/system/mongodb-exporter.service
+    mode: 0755
+
+- name: Configuring service
+  systemd:
+    name: mongodb-exporter
+    daemon_reload: yes
+    state: started
+    enabled: yes

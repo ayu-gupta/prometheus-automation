@@ -1,0 +1,36 @@
+---
+- name: Adding user for Kafka Exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/danielqsj/kafka_exporter/releases/download"
+
+- name: Downloading and unarchiving the Kafka Exporter
+  unarchive:
+    src: "{{ base_url }}/v{{ kafka_exporter_version }}/kafka_exporter-{{ kafka_exporter_version }}.linux-amd64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+    mode: 0755
+
+- name: Copy kafka-exporter to appropriate path
+  copy:
+    src: /tmp/kafka_exporter-{{ kafka_exporter_version }}.linux-amd64/kafka_exporter
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0555
+
+- name: Creating service for Kafka Exporter
+  template:
+    src: kafka-exporter.j2
+    dest: /etc/systemd/system/kafka_exporter.service
+    mode: 0755
+
+- name: Enabling and Starting Kafka Exporter Service
+  systemd:
+    name: kafka_exporter
+    daemon_reload: yes
+    state: started
+    enabled: yes

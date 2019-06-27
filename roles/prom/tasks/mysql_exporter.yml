@@ -1,0 +1,36 @@
+---
+- name: Adding user for MySQL Exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/prometheus/mysqld_exporter/releases/download"
+
+- name: Downloading and unarchiving the mysqld exporter
+  unarchive:
+    src: "{{ base_url }}/v{{ mysql_exporter_version }}/mysqld_exporter-{{ mysql_exporter_version }}.linux-amd64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+    mode: 0755
+
+- name: Copy mysqld-exporter to appropriate path
+  copy:
+    src: /tmp/mysqld_exporter-{{ mysql_exporter_version }}.linux-amd64/mysqld_exporter
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0555
+
+- name: Creating Service for MySQL Exporter
+  template:
+    src: mysql-exporter.j2
+    dest: /etc/systemd/system/mysql-exporter.service
+    mode: 0755
+
+- name: Enabling and starting MySQL Exporter service
+  systemd:
+    name: mysql-exporter
+    daemon_reload: yes
+    state: started
+    enabled: yes

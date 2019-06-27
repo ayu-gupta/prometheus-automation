@@ -1,0 +1,40 @@
+---
+- name: Add the user node-exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/prometheus/node_exporter/releases/download"
+
+- name: Download and Unarchive the Node Exporter
+  unarchive:
+    src: "{{ base_url }}/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+    mode: 0755
+
+- name: Move Binary to appropriate path
+  copy:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0555
+
+- name: Create Node Exporter Service
+  template:
+    src: "node-exporter.j2"
+    dest: /etc/systemd/system/node-exporter.service
+    mode: 0755
+
+- name: Daemon reload for Node Exporter
+  systemd:
+    name: node-exporter
+    daemon_reload: yes
+
+- name: Start and Enable Node Exporter service
+  systemd:
+    name: node-exporter
+    state: started
+    enabled: yes

@@ -1,0 +1,36 @@
+---
+- name: Adding user for Nginx Exporter
+  user:
+    name: prom
+    shell: /sbin/nologin
+
+- name: Setting internal variables for convinience
+  set_fact:
+    base_url: "https://github.com/nginxinc/nginx-prometheus-exporter/releases/download"
+
+- name: Downloading and unarchiving the nginx exporter
+  unarchive:
+    src: "{{ base_url }}/v{{ nginx_exporter }}/nginx-prometheus-exporter-{{ nginx_exporter }}-linux-amd64.tar.gz"
+    dest: /tmp
+    remote_src: yes
+    mode: 0755
+
+- name: Copy nginx-exporter to appropriate path
+  copy:
+    src: "/tmp/nginx-prometheus-exporter"
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: 0555
+
+- name: Creating service for nginx exporter
+  template:
+    src: nginx-exporter.j2
+    dest: /etc/systemd/system/nginx-exporter.service
+    mode: 0755
+
+- name: Enabling and starting the Nginx Exporter service
+  systemd:
+    name: nginx-exporter
+    daemon_reload: yes
+    state: started
+    enabled: yes
