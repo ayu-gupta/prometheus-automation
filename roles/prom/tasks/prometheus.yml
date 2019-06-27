@@ -4,7 +4,7 @@
     name: prometheus
     shell: /sbin/nologin
 
-- name: creating structure - code and logs
+- name: creating directory structure - code and logs
   file:
     path: "{{ item }}"
     state: directory
